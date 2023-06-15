@@ -39,23 +39,29 @@ impl Default for Config {
     }
 }
 
-pub struct Curve<const N: usize> {}
+pub struct Curve<const N: usize, F: Fn(f64, [f64; N]) -> f64> {
+    func: F,
+    params: [f64; N],
+}
 
-impl<const N: usize> Curve<N> {
-    pub fn eval(&self) -> f64 {
-        todo!()
+impl<const N: usize, F: Fn(f64, [f64; N]) -> f64> Curve<N, F> {
+    pub fn eval(&self, x: f64) -> f64 {
+        (self.func)(x, self.params)
     }
 }
 
-pub trait CurveFit<const N: usize> {
-    fn fit(&self, x_data: &[f64], y_data: &[f64], cfg: Config) -> Result<Curve<N>, Error>;
+pub trait CurveFit<const N: usize>
+where
+    Self: std::marker::Sized + Fn(f64, [f64; N]) -> f64,
+{
+    fn fit(&self, x_data: &[f64], y_data: &[f64], cfg: Config) -> Result<Curve<N, Self>, Error>;
 }
 
 impl<T, const N: usize> CurveFit<N> for T
 where
-    T: Fn(f64, [f64; N]) -> f64,
+    T: Fn(f64, [f64; N]) -> f64 + Clone + Copy,
 {
-    fn fit(&self, x_data: &[f64], y_data: &[f64], cfg: Config) -> Result<Curve<N>, Error> {
+    fn fit(&self, x_data: &[f64], y_data: &[f64], cfg: Config) -> Result<Curve<N, Self>, Error> {
         // data length check
         if x_data.len() != y_data.len() {
             return Err(Error::UnmatchedLength {
@@ -71,7 +77,12 @@ where
             }
         }
 
-        Ok(Curve {})
+        let p_bar = [0.0; N];
+
+        Ok(Curve {
+            func: *self,
+            params: p_bar,
+        })
     }
 }
 
@@ -108,7 +119,7 @@ mod tests {
             )
             .unwrap();
 
-        f.eval();
+        f.eval(1.0);
     }
 
     #[test]
