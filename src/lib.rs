@@ -47,44 +47,32 @@ impl<const N: usize> Curve<N> {
     }
 }
 
-pub fn _wrap_func<const N: usize>(
-    func: impl Fn(f64, [f64; N]) -> f64,
-    xdata: &[f64], 
-    ydata: &[f64],
-) {
-    pub fn func_wrapped<const N: usize>(
-        params: [f64; N]
-    ) {
-
-    }
-
+pub trait CurveFit<const N: usize> {
+    fn fit(&self, x_data: &[f64], y_data: &[f64], cfg: Config) -> Result<Curve<N>, Error>;
 }
 
-pub fn fit<const N: usize>(
-    func: impl Fn(f64, [f64; N]) -> f64,
-    x_data: &[f64],
-    y_data: &[f64],
-    cfg: Config,
-) -> Result<Curve<N>, Error> {
-    // data length check
-    if x_data.len() != y_data.len() {
-        return Err(Error::UnmatchedLength {
-            x_data_len: x_data.len(),
-            y_data_len: y_data.len(),
-        });
-    }
-
-    // config check
-    if let Err(e) = cfg.check() {
-        if let Some(e) = e.into_iter().next() {
-            return Err(Error::ConfigCheckFailed(e));
+impl<T, const N: usize> CurveFit<N> for T
+where
+    T: Fn(f64, [f64; N]) -> f64,
+{
+    fn fit(&self, x_data: &[f64], y_data: &[f64], cfg: Config) -> Result<Curve<N>, Error> {
+        // data length check
+        if x_data.len() != y_data.len() {
+            return Err(Error::UnmatchedLength {
+                x_data_len: x_data.len(),
+                y_data_len: y_data.len(),
+            });
         }
+
+        // config check
+        if let Err(e) = cfg.check() {
+            if let Some(e) = e.into_iter().next() {
+                return Err(Error::ConfigCheckFailed(e));
+            }
+        }
+
+        Ok(Curve {})
     }
-
-    // residual
-
-
-    Ok(Curve {})
 }
 
 #[cfg(test)]
@@ -97,17 +85,28 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let f = fit(
-            |x: f64, p: [f64; 2]| p[0] * x + p[1],
-            // target_func,
-            &[1.0, 2.0, 3.0],
-            &[1.0, 2.0, 3.0],
-            Config {
-                check_finite: false,
-                ..Default::default()
-            },
-        )
-        .unwrap();
+        let lamda_func = |x: f64, p: [f64; 2]| p[0] * x + p[1];
+        lamda_func
+            .fit(
+                &[1.0, 2.0, 3.0],
+                &[1.0, 2.0, 3.0],
+                Config {
+                    check_finite: false,
+                    ..Default::default()
+                },
+            )
+            .unwrap();
+
+        let f = target_func
+            .fit(
+                &[1.0, 2.0, 3.0],
+                &[1.0, 2.0, 3.0],
+                Config {
+                    check_finite: false,
+                    ..Default::default()
+                },
+            )
+            .unwrap();
 
         f.eval();
     }
