@@ -8,3 +8,8 @@ edition = "2021"
 [dependencies]
 thiserror = "*"
 range_checker = "*"
+levenberg-marquardt = '*'
+nalgebra = '*'
+ndarray = '*'
+ndarray-rand = '*'
+rand = '*'

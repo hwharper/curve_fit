@@ -1,4 +1,8 @@
+use ndarray::{Array, ArrayBase, Dim, OwnedRepr};
 use range_checker::CheckVerbose;
+use ndarray_rand::RandomExt;
+use ndarray_rand::rand_distr::Normal;
+use rand;
 
 #[derive(Debug, Clone, Copy, range_checker::CheckVerbose)]
 pub struct Config {
@@ -63,9 +67,13 @@ pub fn fit<const N: usize>(
 mod tests {
     use super::*;
 
-    fn target_func(x: f64, p: [f64; 4]) -> f64 {
+    fn target_func(x: f64, p: [f64; 2]) -> f64 {
         p[0] * x + p[1]
     }
+
+    // fn target_func(x: ArrayBase<OwnedRepr<f64>, Dim<[usize; 1]>>, p: [f64; 2]) -> ArrayBase<OwnedRepr<f64>, Dim<[usize; 1]>> {
+    //     p[0] * x + p[1]
+    // }
 
     #[test]
     fn it_works() {
@@ -82,5 +90,18 @@ mod tests {
         .unwrap();
 
         f.eval();
+    }
+
+    #[test]
+    fn simple_test() {
+        let xdata = Array::linspace(0., 4., 50);
+        let y = xdata.map(|&x| target_func(x, [2.5, 1.3]));
+        let normal = Normal::new(0.0, 1.0).unwrap();
+        let y_noise = Array::random_using(xdata.shape(), normal, &mut rand::thread_rng());
+        let y_data = y + y_noise; 
+        println!("y data:\n{:?}", y_data);
+    
+
+        // dbg!(xdata, ydata);
     }
 }
