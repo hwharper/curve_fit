@@ -12,11 +12,15 @@ pub struct Config {
     pub method: Method
 }
 
+/// Fit method enum.
 #[derive(Debug, Clone, Copy)]
 pub enum Method {
-    LM,      // Levenberg-Marquardt algorithm
-    DogBox,  // dogleg algorithm
-    TRF      // Trust Region Reflective algorithm
+    /// Levenberg-Marquardt algorithm
+    LM,   
+    /// Dogleg algorithm   
+    DogBox,  
+    /// Trust Region Reflective algorithm
+    TRF      
 }
 
 #[derive(thiserror::Error, Debug)]
