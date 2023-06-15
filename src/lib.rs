@@ -9,13 +9,14 @@ pub struct Config {
     #[filter(|p0: &f64| p0.is_normal())]
     pub p0: f64,
     pub check_finite: bool,
-    pub method: method
+    pub method: Method
 }
 
-pub enum method {
-    lm,      // Levenberg-Marquardt algorithm
-    dogbox,  // dogleg algorithm
-    trf      // Trust Region Reflective algorithm
+#[derive(Debug, Clone, Copy)]
+pub enum Method {
+    LM,      // Levenberg-Marquardt algorithm
+    DogBox,  // dogleg algorithm
+    TRF      // Trust Region Reflective algorithm
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -34,7 +35,7 @@ impl Default for Config {
         Self {
             p0: 1.0,
             check_finite: true,
-            method: method::lm
+            method: Method::LM
         }
     }
 }
