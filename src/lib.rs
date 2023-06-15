@@ -9,6 +9,13 @@ pub struct Config {
     #[filter(|p0: &f64| p0.is_normal())]
     pub p0: f64,
     pub check_finite: bool,
+    pub method: method
+}
+
+pub enum method {
+    lm,      // Levenberg-Marquardt algorithm
+    dogbox,  // dogleg algorithm
+    trf      // Trust Region Reflective algorithm
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -27,6 +34,7 @@ impl Default for Config {
         Self {
             p0: 1.0,
             check_finite: true,
+            method: method::lm
         }
     }
 }
@@ -37,6 +45,19 @@ impl<const N: usize> Curve<N> {
     pub fn eval(&self) -> f64 {
         todo!()
     }
+}
+
+pub fn _wrap_func<const N: usize>(
+    func: impl Fn(f64, [f64; N]) -> f64,
+    xdata: &[f64], 
+    ydata: &[f64],
+) {
+    pub fn func_wrapped<const N: usize>(
+        params: [f64; N]
+    ) {
+
+    }
+
 }
 
 pub fn fit<const N: usize>(
@@ -60,6 +81,9 @@ pub fn fit<const N: usize>(
         }
     }
 
+    // residual
+
+
     Ok(Curve {})
 }
 
@@ -70,10 +94,6 @@ mod tests {
     fn target_func(x: f64, p: [f64; 2]) -> f64 {
         p[0] * x + p[1]
     }
-
-    // fn target_func(x: ArrayBase<OwnedRepr<f64>, Dim<[usize; 1]>>, p: [f64; 2]) -> ArrayBase<OwnedRepr<f64>, Dim<[usize; 1]>> {
-    //     p[0] * x + p[1]
-    // }
 
     #[test]
     fn it_works() {
